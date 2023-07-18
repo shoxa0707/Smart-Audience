@@ -1,0 +1,70 @@
+import torch
+import torch.nn.functional as F
+from torch import nn
+
+class Gender(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1=nn.Conv2d(3, 32, 3)
+        self.norm1=nn.BatchNorm2d(32)
+        self.conv2=nn.Conv2d(32, 64, 4)
+        self.norm2=nn.BatchNorm2d(64)
+        self.conv3=nn.Conv2d(64, 128, 3)
+        self.norm3=nn.BatchNorm2d(128)
+        self.conv4=nn.Conv2d(128, 256, 3)
+        self.norm4=nn.BatchNorm2d(256)
+        self.pool=nn.MaxPool2d(2)
+        self.fc1=nn.Linear(256*4*4, 1024)
+        self.fc2=nn.Linear(1024, 512)
+        self.fc3=nn.Linear(512, 240)
+        self.fc4=nn.Linear(240, 1)
+        self.sigmoid=nn.Sigmoid()
+    def forward(self,x):
+        x=F.relu(self.pool(self.conv1(x)))
+        x=self.norm1(x)
+        x=F.relu(self.pool(self.conv2(x)))
+        x=self.norm2(x)
+        x=F.relu(self.pool(self.conv3(x)))
+        x=self.norm3(x)
+        x=F.relu(self.pool(self.conv4(x)))
+        x=self.norm4(x)
+        x=x.view(-1,256*4*4)
+        x=F.relu(self.fc1(x))
+        x=F.relu(self.fc2(x))
+        x=F.relu(self.fc3(x))
+        return torch.sigmoid(self.fc4(x))
+
+class Age(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1=nn.Conv2d(3, 8, 5)
+        self.norm1=nn.BatchNorm2d(8)
+        self.conv2=nn.Conv2d(8, 16, 5)
+        self.norm2=nn.BatchNorm2d(16)
+        self.conv3=nn.Conv2d(16, 32, 4)
+        self.norm3=nn.BatchNorm2d(32)
+        self.conv4=nn.Conv2d(32, 64, 5)
+        self.norm4=nn.BatchNorm2d(64)
+        self.conv5=nn.Conv2d(64, 128, 4)
+        self.norm5=nn.BatchNorm2d(128)
+        self.pool=nn.MaxPool2d(2)
+        self.l1=nn.Linear(128*3*3, 512)
+        self.l2=nn.Linear(512, 128)
+        self.l3=nn.Linear(128, 4)
+        
+    def forward(self,x):
+        x=F.relu(self.pool(self.conv1(x)))
+        x=self.norm1(x)
+        x=F.relu(self.pool(self.conv2(x)))
+        x=self.norm2(x)
+        x=F.relu(self.pool(self.conv3(x)))
+        x=self.norm3(x)
+        x=F.relu(self.pool(self.conv4(x)))
+        x=self.norm4(x)
+        x=F.relu(self.pool(self.conv5(x)))
+        x=self.norm5(x)
+        x=x.view(-1, 128*3*3)
+        x=F.relu(self.l1(x))
+        x=F.relu(self.l2(x))
+        x=self.l3(x)
+        return x
